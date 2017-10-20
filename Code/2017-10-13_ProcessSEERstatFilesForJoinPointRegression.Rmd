@@ -1,0 +1,152 @@
+---
+title: "Alter tables for Joinpoint Modeling"
+output: html_notebook
+---
+
+
+# Generic function to fix common problems in all datasets.
+```{r}
+prepTable <- function(file, override = FALSE, outputfilename = NULL){
+     library(readr)
+     library(dplyr)
+     tempfile <- readr::read_tsv(file = file, na = " ")
+     newfile <- tempfile %>% filter(`Year of diagnosis` != "2000-2014" & `Summary stage 2000 (1998+)` %in% c("Localized","Regional","Distant") & `Age recode with <1 year olds` != "Unknown")
+     newfile$`Summary stage 2000 (1998+)` <- factor(newfile$`Summary stage 2000 (1998+)`, levels = c("Localized","Regional","Distant"), labels = c(1, 2, 3))
+     Ages <- newfile %>% select(`Age recode with <1 year olds`) %>% distinct(`Age recode with <1 year olds`) %>% pull(`Age recode with <1 year olds`)
+     newfile$`Age recode with <1 year olds` <- factor(newfile$`Age recode with <1 year olds`, levels = Ages, labels = c(0,1:(length(Ages)-1)))
+     
+     newfile <- newfile %>% arrange(`Summary stage 2000 (1998+)`, `Year of diagnosis`, `Age recode with <1 year olds`) %>% rename("Stage" = "Summary stage 2000 (1998+)", "Year of Diagnosis" = "Year of diagnosis", "Age Group" = "Age recode with <1 year olds")
+     if(override == TRUE){
+          if(is.null(outputfilename)){
+               newfilename <- file
+          } else {
+               newfilename <- outputfilename
+          }
+          write_tsv(newfile, na = " ", path = newfilename)
+     }
+     return(newfile)
+}
+```
+
+## Stage Only
+```{r}
+filename <- "K:/SEER_DataTables/wStandardPops/SEER_2000-2014_StageDistribution_StageAge.txt"
+outputto <- "U:/ProjectDocs/2017_DistantCRC/ProcessedTables/Rate_StageAge_forJoinpoint.txt"
+prepTable(filename, override = TRUE, outputfilename = outputto)
+```
+
+## Stage + Sex
+```{r}
+filename <- "K:/SEER_DataTables/wStandardPops/SEER_2000-2014_StageDistribution_StageAgeSex.txt"
+outputto <- "U:/ProjectDocs/2017_DistantCRC/ProcessedTables/Rate_StageAgeSex_forJoinpoint.txt"
+prepTable(filename, override = TRUE, outputfilename = outputto)
+```
+
+## Stage + Race
+```{r}
+filename <- "K:/SEER_DataTables/wStandardPops/SEER_2000-2014_StageDistribution_StageAgeRace.txt"
+outputto <- "U:/ProjectDocs/2017_DistantCRC/ProcessedTables/Rate_StageAgeRace_forJoinpoint.txt"
+prepTable(filename, override = TRUE, outputfilename = outputto)
+```
+
+## Stage + Site
+```{r}
+filename <- "K:/SEER_DataTables/wStandardPops/SEER_2000-2014_StageDistribution_StageAgeSidedness.txt"
+outputto <- "U:/Box Sync/ProjectDocs/2017_DistantCRC/ProcessedTables/Rate_StageAgeSite_forJoinpoint.txt"
+prepTable(filename, override = TRUE, outputfilename = outputto)
+```
+
+# Modify datasets as needed
+
+## Stage Only   
+No changes needed
+
+## Stage + Age  
+Need to add a column for age category.
+
+### Read in data   
+```{r}
+filename <- "U:/ProjectDocs/2017_DistantCRC/ProcessedTables/Rate_StageAge_forJoinpoint.txt"
+StageAgecat <- read_tsv(filename)
+```
+### Create Age Category column   
+```{r}
+StageAgecat$`Age Category` <- NA
+for(i in 1:nrow(StageAgecat)){
+     # if  c("00 years", "01-04 years", "05-09 years", "10-14 years", "15-19 years", "20-24 years", "25-29 years", "30-34 years", "35-39 years", "40-44 years", "45-49 years")
+     if(StageAgecat$`Age Group`[i] %in% c(0,1:10)){
+          StageAgecat$`Age Category`[i] <- "Early"
+     }
+     # else if c("50-54 years", "55-59 years","60-64 years")
+     else if(StageAgecat$`Age Group`[i] %in% c(11:13) ){
+          StageAgecat$`Age Category`[i] <- "Middle"
+     }
+     else if(StageAgecat$`Age Group`[i] %in% c(14:18)){
+          StageAgecat$`Age Category`[i] <- "Late"
+     }
+}
+table(StageAgecat$`Age Category`)
+
+StageAgecat <- StageAgecat %>% select(Stage, `Age Category`, `Year of Diagnosis`, `Age Group`, `Age-Adjusted Rate`, Count, Population, `Std Pop`)
+
+StageAgecat$`Age Category` <- factor(StageAgecat$`Age Category`, levels = c("Early","Middle","Late"), labels = c(1,2,3)) 
+
+StageAgecat
+```
+
+### Combine Age Categories
+```{r}
+# StageAgecat <- StageAgecat %>% 
+#      group_by(`Stage`, `Age Category`, `Year of Diagnosis`) %>% 
+#      summarize(`Age-Adjusted Rate` = sum(`Age-Adjusted Rate`),
+#                Count = sum(Count),
+#                Population = Population[1],
+#                `Std Pop` = `Std Pop`[1])
+# StageAgecat
+```
+
+
+
+```{r}
+#write_tsv(StageAgecat, "U:/ProjectDocs/2017_DistantCRC/ProcessedTables/Rate_StageAgeAgecat_forJoinpoint.txt")
+```
+
+## Stage + Sex   
+### Read in data   
+```{r}
+filename <- "U:/ProjectDocs/2017_DistantCRC/ProcessedTables/Rate_StageAgeSex_forJoinpoint.txt"
+StageSex <- read_tsv(filename)
+```
+### Filter for only Male and Female   
+
+```{r}
+StageSex <- StageSex %>% filter(Sex %in% c("Male","Female"))
+head(StageSex)
+```
+### Write to file  
+```{r}
+#write_tsv(StageSex, filename)
+```
+
+
+## Stage + Race   
+### Read in data   
+```{r}
+filename <- "U:/ProjectDocs/2017_DistantCRC/ProcessedTables/Rate_StageAgeRace_forJoinpoint.txt"
+StageRace <- read_tsv(filename)
+```
+### Change column name and remove unknowns   
+```{r}
+StageRace <- StageRace %>% filter(`Race recode (W, B, AI, API)` != "Unknown") %>% rename("Race recode" = `Race recode (W, B, AI, API)`)
+head(StageRace)
+```
+### Write over original file   
+```{r}
+#write_tsv(StageRace, filename)
+```
+
+## Stage + Site   
+No changes needed.
+
+
+
