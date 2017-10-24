@@ -16,25 +16,31 @@ library(readxl)
 library(cowplot)
 ```
 
+```{r, echo=FALSE}
+directory <- "U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/"
+```
+
+
 
 # A: Age
 ```{r}
 library(readxl)
 ```
 
-
+Read in joinpoint model excel sheeets
 ```{r}
-Early_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageEarly.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Early")
-Middle_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageMiddle.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Middle")
-Late_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageLate.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Late")
+Early_JP <- read_excel(paste0(directory, "Rate_StageEarly.xlsx")) %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Early")
+Middle_JP <- read_excel(paste0(directory, "Rate_StageMiddle.xlsx")) %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Middle")
+Late_JP <- read_excel(paste0(directory, "Rate_StageLate.xlsx")) %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Late")
 
 AllAges_JP <- rbind(Early_JP, Middle_JP, Late_JP)
 AllAges_JP$AgeCategory <- factor(AllAges_JP$AgeCategory, levels = c("Early","Middle","Late"))
 ```
 
 
-# Plots
+## Plots
 
+Set aesthetic scale options
 ```{r}
 colorclasses <- c("Localized" = "#016b0b","Distant" = "#be0306","Regional" = "#ffb401")
 
@@ -70,26 +76,29 @@ Figure2A_themed
 ```
 
 # B: Sidedness
+
+Read in joinpoint model outputs
 ```{r}
-Prox_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageProximal.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Side = "Proximal")
-Dist_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageDistal.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Side = "Distal")
+Prox_JP <- read_excel(paste0(directory, "Rate_StageProximal.xlsx")) %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Side = "Proximal")
+Dist_JP <- read_excel(paste0(directory, "Rate_StageDistal.xlsx")) %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Side = "Distal")
 
 AllSides_JP <- rbind(Prox_JP, Dist_JP)
-
+AllSides_JP$Side <- factor(AllSides_JP$Side, levels=c("Proximal","Distal"))
+AllSides_JP$Stage <- factor(AllSides_JP$Stage, levels = c("Localized","Regional","Distant"))
 ```
 
 
-#Plots
-
+## Plots   
+Set aesthetic scale options
 ```{r}
 colorclasses <- c("Localized" = "#016b0b", "Distant" = "#be0306", "Regional" = "#ffb401")
 
-shapes <- c(8, 15, 17)
+shapes <- c(15, 17, 8)
 lwds <- c(3, 4, 2, 1)
 ```
 
 
-##Rate of Disease Stage by Site Category over time
+## Rate of Disease Stage by Site Category over time
 ```{r}
 Figure2B <- ggplot(AllSides_JP) + 
      geom_point(aes(x=Year, y=Rate, col=Stage, group=Stage, shape=Stage), size=2) + 
@@ -131,29 +140,29 @@ CRCSites2$Stage <- factor(CRCSites2$Stage, levels=c("Unknown/unstaged","Localize
 CRCSites2$Race <- factor(CRCSites2$Race, levels=c("Black", "American Indian/Alaska Native","Asian or Pacific Islander","White"), labels = c("Black or African American", "American Indian/Alaska Native","Asian or Pacific Islander","White"))
 ```
 
-# The Data we're working with
+## The Data we're working with
 ```{r}
 CRCSites2
 ```
 
-# Read in joinpoint models
+## Read in joinpoint models
 ```{r}
 library(readxl)
 ```
 
 ```{r}
-AI_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageAmericanIndian.xlsx", sheet=3) %>% mutate(Race = "American Indian/Alaska Native") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), APC=NULL)
-A_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageAsian.xlsx", sheet=3) %>% mutate(Race = "Asian or Pacific Islander") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
-B_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageBlack.xlsx", sheet=1) %>% mutate(Race = "Black or African American") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
-W_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageWhite.xlsx", sheet=1) %>% mutate(Race = "White") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
+AI_JPs <- read_excel(paste0(directory, "Rate_StageAmericanIndian.xlsx"), sheet=3) %>% mutate(Race = "American Indian/Alaska Native") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), APC=NULL)
+A_JPs <- read_excel(paste0(directory, "Rate_StageAsian.xlsx"), sheet=3) %>% mutate(Race = "Asian or Pacific Islander") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
+B_JPs <- read_excel(paste0(directory, "Rate_StageBlack.xlsx"), sheet=1) %>% mutate(Race = "Black or African American") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
+W_JPs <- read_excel(paste0(directory, "Rate_StageWhite.xlsx"), sheet=1) %>% mutate(Race = "White") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
 
 AllRace_JPs <- rbind(AI_JPs, A_JPs, B_JPs, W_JPs)
 ```
 
 
 
-##Rate of stage category by year
-
+##Rate of stage category by year    
+Set aesthetic scale options
 ```{r}
 colorclasses <- c("Localized" = "#016b0b","Distant" = "#be0306","Regional" = "#ffb401")
 
@@ -197,22 +206,21 @@ Figure2C_themed <- Figure2C +
      )
 
 Figure2C_themed
-
-#ggsave(plot=Figure2C_themed, filename="Figure2C.tiff", path="C:/Users/gaugustus/Documents/Success_Docs/Pubs/DistantCRC_BriefComm/", device = "tiff", width=16, height=10, units="cm", dpi = 300)
-
 ```
 
 # D: Sex
+
+Read in joinpoint model data
 ```{r}
-RateFemale_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageFemale.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Female")
-RateMale_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageFemale.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Male")
+RateFemale_JP <- read_excel(paste0(directory, "Rate_StageFemale.xlsx")) %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Female")
+RateMale_JP <- read_excel(paste0(directory, "Rate_StageFemale.xlsx")) %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Male")
 
 AllSex_JP <- rbind(RateFemale_JP, RateMale_JP)
 
 ```
 
 
-#Plots
+## Plots
 
 ```{r}
 colorclasses <- c("Localized" = "#016b0b", "Distant" = "#be0306", "Regional" = "#ffb401")
@@ -222,7 +230,7 @@ lwds <- c(3, 4, 2, 1)
 ```
 
 
-##Rate of Disease Stage by Site Category over time
+## Rate of Disease Stage by Site Category over time
 ```{r}
 Figure2D <- ggplot(AllSex_JP) + 
      geom_point(aes(x=Year, y=Rate, col=Stage, group=Stage, shape=Stage), size=2) + 
@@ -247,20 +255,17 @@ Figure2D_themed
 
 # Cowplot, put it all together
 ```{r}
-Legend <- get_legend(Figure2A_themed + theme(legend.position = "bottom", 
+Legend <- get_legend(Figure2B_themed + theme(legend.position = "bottom", 
                                           legend.title = element_text(size=12, face="bold"),
                                           legend.text = element_text(size=10))) 
 ```
-
 
 
 ```{r}
 prow <- plot_grid(Figure2A_themed, Figure2B_themed, Figure2C_themed, Figure2D_themed, labels = c("A", "B", "C", "D"), hjust = -1, nrow = 2, align = "vh", label_size = 26)
 p <- plot_grid(prow, Legend, ncol=1, rel_heights = c(1, .1))
 p
-#ggsave(plot=p, filename="Figure2.tiff", path="C:/Users/gaugustus/Documents/Success_Docs/Pubs/DistantCRC_BriefComm", device = "tiff", width=33, height=20, units="cm", dpi = 300)
 
-#ggsave(plot=p, filename="Figure2_Proof.tiff", path="C:/Users/gaugustus/Documents/Success_Docs/Pubs/DistantCRC_BriefComm", device = "tiff", width=33, height=20, units="cm", dpi = 72)
 ```
 
 

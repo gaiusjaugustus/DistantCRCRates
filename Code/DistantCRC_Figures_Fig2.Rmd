@@ -1,0 +1,119 @@
+---
+title: "Figure 2"
+output: 
+     html_notebook:
+          toc: true
+          code_folding: hide
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+---
+
+
+```{r, echo=FALSE, message=FALSE, warning=FALSE}
+library(ggplot2)
+library(readr)
+library(dplyr)
+library(scales)
+library(cowplot)
+```
+
+
+#Read in data
+```{r, message=FALSE}
+# Read in SEER extracted table
+CRCStages <- readr::read_delim("K:/SEER_DataTables/SEER_2000-2014_StageDistribution_noStratify.txt", "\t", escape_double = FALSE, trim_ws = TRUE)
+colnames(CRCStages) <- c("Year", "Stage","Rate", "Count", "Population")
+CRCStages <- CRCStages %>% filter(Year != "2000-2014")
+CRCStages$Year <- as.numeric(CRCStages$Year)
+
+CRCStages2 <- CRCStages %>% filter(Stage %in% c("Distant","Localized","Regional","Unknown/unstaged"))
+```
+
+
+# Get proportions of incidence rate of each stage cat per year 
+```{r}
+Groups <- CRCStages2 %>% group_by(Year) %>% summarize(totalcases = sum(Rate))
+
+
+CRCStages3 <- CRCStages2 %>% left_join(Groups, by=c("Year")) 
+CRCStages3$Stage <- factor(CRCStages3$Stage, levels=c("Unknown/unstaged","Localized","Regional","Distant"))
+```
+
+
+
+#The Data we're working with
+```{r}
+CRCStages3
+```
+
+# Joinpoints
+
+Read in joinpoint models
+```{r}
+library(readxl)
+```
+
+```{r}
+# Read in General CRC rate data
+Stage_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageOnly.xlsx", sheet=1) %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
+
+
+```
+
+
+# Plots
+
+```{r}
+colorclasses <- c("Localized" = "#016b0b", "Distant" = "#be0306", "Regional" = "#ffb401")
+
+shapes <- c(15, 17, 8)
+lwds <- c(3, 4, 2, 1)
+```
+
+
+##Rates and Proportions by disease stage
+```{r}
+Figure1A <- ggplot() + 
+     geom_point(data=CRCStages3 %>% filter(Stage %in% c("Localized","Regional","Distant")), aes(x=Year, y=Rate, group=Stage, col=Stage, shape=Stage), show.legend = FALSE) + 
+     geom_line(data=Stage_JPs, aes(x=Year, y=Model, group=Stage, col=Stage), show.legend = FALSE) +
+scale_x_continuous(breaks=c(1998, 2000, 2005, 2010, 2014), labels = c("1998", "2000", "2005", "2010", "2014"), minor_breaks = seq(1998,2014,1)) + 
+     theme_classic() + theme(axis.text.x = element_text(angle=45, vjust=0.5), legend.position = "bottom") + 
+     scale_color_manual(name="Stage",values = colorclasses) +
+     scale_shape_manual(values=shapes) + 
+     ylab("Rate per 100,000")
+Figure1A
+```
+
+# Format figure to export
+
+```{r}
+Figure1Export <- ggplot() + 
+     geom_point(data=(CRCStages3 %>% filter(Stage %in% c("Localized","Regional","Distant"))), aes(x=Year, y=Rate, group=Stage, col=Stage, shape=Stage)) + 
+     geom_line(data=Stage_JPs, aes(x=Year, y=Model, group=Stage, col=Stage)) +
+     scale_x_continuous(breaks=c(1998, 2000, 2005, 2010, 2014), 
+                        labels = c("1998", "2000", "2005", "2010", "2014"), 
+                        minor_breaks = seq(1998,2014,1)) + 
+     scale_color_manual(name="Stage",values = colorclasses) +
+     scale_shape_manual(values=shapes) + 
+     ylab("Incidence rate (per 100,000)") + 
+     theme_classic() + 
+     theme(
+          legend.position = "bottom", 
+          legend.title = element_text(size=12, face="bold"),
+          legend.text = element_text(size=10),
+          legend.title.align = 0.5,
+          axis.title = element_text(size = 12, face="bold"),
+          axis.text = element_text(size=10),
+          axis.text.x = element_text(angle=45, vjust=0.5)
+     )
+Figure1Export
+#ggsave(plot=Figure1Export, filename="Figure1.tiff", path="path/to/folder/DistantCRC_BriefComm", device = "tiff", width=16, height=10, units="cm", dpi = 300)
+```
+
+
+
+
+
+```{r}
+sessionInfo()
+```
+
