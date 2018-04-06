@@ -143,10 +143,21 @@ library(readxl)
 ```
 
 ```{r}
-AI_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageAmericanIndian.xlsx", sheet=3) %>% mutate(Race = "American Indian/Alaska Native") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), APC=NULL)
-A_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageAsian.xlsx", sheet=3) %>% mutate(Race = "Asian or Pacific Islander") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
-B_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageBlack.xlsx", sheet=1) %>% mutate(Race = "Black or African American") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
-W_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageWhite.xlsx", sheet=1) %>% mutate(Race = "White") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
+AI_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageAmericanIndian.xlsx", sheet=3) %>% 
+     mutate(Race = "American Indian/Alaska Native") %>% 
+     rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Model = as.numeric(Model), APC=NULL)
+A_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageAsian.xlsx", sheet=3) %>% 
+     mutate(Race = "Asian or Pacific Islander") %>% 
+     rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Model = as.numeric(Model))
+B_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageBlack.xlsx", sheet=1) %>% 
+     mutate(Race = "Black or African American") %>% 
+     rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Model = as.numeric(Model))
+W_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageWhite.xlsx", sheet=1) %>% 
+     mutate(Race = "White") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Model = as.numeric(Model), X__1=NULL, X__2=NULL)
 
 AllRace_JPs <- rbind(AI_JPs, A_JPs, B_JPs, W_JPs)
 ```
@@ -205,8 +216,12 @@ Figure2C_themed
 
 # D: Sex
 ```{r}
-RateFemale_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageFemale.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Female")
-RateMale_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageFemale.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Male")
+RateFemale_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageFemale.xlsx") %>% 
+     rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Female")
+RateMale_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageMale.xlsx") %>% 
+     rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Male")
 
 AllSex_JP <- rbind(RateFemale_JP, RateMale_JP)
 
