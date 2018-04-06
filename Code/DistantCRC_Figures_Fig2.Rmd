@@ -13,14 +13,13 @@ library(ggplot2)
 library(readr)
 library(dplyr)
 library(scales)
-library(cowplot)
 ```
 
 
 #Read in data
 ```{r, message=FALSE}
 # Read in SEER extracted table
-CRCStages <- readr::read_delim("K:/SEER_DataTables/SEER_2000-2014_StageDistribution_noStratify.txt", "\t", escape_double = FALSE, trim_ws = TRUE)
+CRCStages <- readr::read_delim("../Data/SEER_2000-2014_StageDistribution_noStratify.txt", "\t", escape_double = FALSE, trim_ws = TRUE)
 colnames(CRCStages) <- c("Year", "Stage","Rate", "Count", "Population")
 CRCStages <- CRCStages %>% filter(Year != "2000-2014")
 CRCStages$Year <- as.numeric(CRCStages$Year)
@@ -54,7 +53,7 @@ library(readxl)
 
 ```{r}
 # Read in General CRC rate data
-Stage_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageOnly.xlsx", sheet=1) %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
+Stage_JPs <- read_excel("../Data/JoinPoint/Rate_StageOnly.xlsx", sheet=1) %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model))
 
 
 ```
@@ -72,7 +71,7 @@ lwds <- c(3, 4, 2, 1)
 
 ##Rates and Proportions by disease stage
 ```{r}
-Figure1A <- ggplot() + 
+Figure2A <- ggplot() + 
      geom_point(data=CRCStages3 %>% filter(Stage %in% c("Localized","Regional","Distant")), aes(x=Year, y=Rate, group=Stage, col=Stage, shape=Stage), show.legend = FALSE) + 
      geom_line(data=Stage_JPs, aes(x=Year, y=Model, group=Stage, col=Stage), show.legend = FALSE) +
 scale_x_continuous(breaks=c(1998, 2000, 2005, 2010, 2014), labels = c("1998", "2000", "2005", "2010", "2014"), minor_breaks = seq(1998,2014,1)) + 
@@ -80,13 +79,13 @@ scale_x_continuous(breaks=c(1998, 2000, 2005, 2010, 2014), labels = c("1998", "2
      scale_color_manual(name="Stage",values = colorclasses) +
      scale_shape_manual(values=shapes) + 
      ylab("Rate per 100,000")
-Figure1A
+Figure2A
 ```
 
 # Format figure to export
 
 ```{r}
-Figure1Export <- ggplot() + 
+Figure2Export <- ggplot() + 
      geom_point(data=(CRCStages3 %>% filter(Stage %in% c("Localized","Regional","Distant"))), aes(x=Year, y=Rate, group=Stage, col=Stage, shape=Stage)) + 
      geom_line(data=Stage_JPs, aes(x=Year, y=Model, group=Stage, col=Stage)) +
      scale_x_continuous(breaks=c(1998, 2000, 2005, 2010, 2014), 
@@ -105,8 +104,8 @@ Figure1Export <- ggplot() +
           axis.text = element_text(size=10),
           axis.text.x = element_text(angle=45, vjust=0.5)
      )
-Figure1Export
-#ggsave(plot=Figure1Export, filename="Figure1.tiff", path="path/to/folder/DistantCRC_BriefComm", device = "tiff", width=16, height=10, units="cm", dpi = 300)
+Figure2Export
+#ggsave(plot=Figure2Export, filename="Figure2.tiff", path="path/to/folder/DistantCRC_BriefComm", device = "tiff", width=16, height=10, units="cm", dpi = 300)
 ```
 
 

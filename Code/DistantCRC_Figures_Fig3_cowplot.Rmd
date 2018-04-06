@@ -1,5 +1,5 @@
 ---
-title: "Full Figure 2 with cowplot"
+title: "Full Figure 3 with cowplot"
 output: 
      html_notebook:
           toc: true
@@ -24,9 +24,9 @@ library(readxl)
 
 
 ```{r}
-Early_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageEarly.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Early")
-Middle_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageMiddle.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Middle")
-Late_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageLate.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Late")
+Early_JP <- read_excel("../Data/JoinPoint/Rate_StageEarly.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Early")
+Middle_JP <- read_excel("../Data/JoinPoint/Rate_StageMiddle.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Middle")
+Late_JP <- read_excel("../Data/JoinPoint/Rate_StageLate.xlsx") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value", "Rate" = "Observed Y Value") %>% mutate(Year = as.integer(Year), Model = as.numeric(Model), Rate = as.numeric(Rate), AgeCategory = "Late")
 
 AllAges_JP <- rbind(Early_JP, Middle_JP, Late_JP)
 AllAges_JP$AgeCategory <- factor(AllAges_JP$AgeCategory, levels = c("Early","Middle","Late"))
@@ -71,8 +71,8 @@ Figure2A_themed
 
 # B: Sidedness
 ```{r}
-Prox_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageProximal.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Side = "Proximal")
-Dist_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageDistal.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Side = "Distal")
+Prox_JP <- read_excel("../Data/JoinPoint/Rate_StageProximal.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Side = "Proximal")
+Dist_JP <- read_excel("../Data/JoinPoint/Rate_StageDistal.xlsx") %>% rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Side = "Distal")
 
 AllSides_JP <- rbind(Prox_JP, Dist_JP)
 AllSides_JP$Side <- factor(AllSides_JP$Side, levels=c("Proximal","Distal"))
@@ -143,19 +143,19 @@ library(readxl)
 ```
 
 ```{r}
-AI_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageAmericanIndian.xlsx", sheet=3) %>% 
+AI_JPs <- read_excel("../Data/JoinPoint/Rate_StageAmericanIndian.xlsx", sheet=3) %>% 
      mutate(Race = "American Indian/Alaska Native") %>% 
      rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
      mutate(Year = as.integer(Year), Model = as.numeric(Model), APC=NULL)
-A_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageAsian.xlsx", sheet=3) %>% 
+A_JPs <- read_excel("../Data/JoinPoint/Rate_StageAsian.xlsx", sheet=3) %>% 
      mutate(Race = "Asian or Pacific Islander") %>% 
      rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
      mutate(Year = as.integer(Year), Model = as.numeric(Model))
-B_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageBlack.xlsx", sheet=1) %>% 
+B_JPs <- read_excel("../Data/JoinPoint/Rate_StageBlack.xlsx", sheet=1) %>% 
      mutate(Race = "Black or African American") %>% 
      rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
      mutate(Year = as.integer(Year), Model = as.numeric(Model))
-W_JPs <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageWhite.xlsx", sheet=1) %>% 
+W_JPs <- read_excel("../Data/JoinPoint/Rate_StageWhite.xlsx", sheet=1) %>% 
      mutate(Race = "White") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
      mutate(Year = as.integer(Year), Model = as.numeric(Model), X__1=NULL, X__2=NULL)
 
@@ -216,10 +216,10 @@ Figure2C_themed
 
 # D: Sex
 ```{r}
-RateFemale_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageFemale.xlsx") %>% 
+RateFemale_JP <- read_excel("../Data/JoinPoint/Rate_StageFemale.xlsx") %>% 
      rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% 
      mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Female")
-RateMale_JP <- read_excel("U:/Box Sync/ProjectDocs/2017_DistantCRC/JoinPoint/Rate_StageMale.xlsx") %>% 
+RateMale_JP <- read_excel("../Data/JoinPoint/Rate_StageMale.xlsx") %>% 
      rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% 
      mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), Sex = "Male")
 
