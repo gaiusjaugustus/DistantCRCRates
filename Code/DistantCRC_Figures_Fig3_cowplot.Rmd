@@ -61,9 +61,11 @@ Figure2A_themed <- Figure2A +
      theme_classic() + 
      theme(
      legend.position = "none",
-     axis.title = element_text(size = 12, face="bold"),
-     axis.text = element_text(size=10),
-     axis.text.x = element_text(angle=45, vjust=0.5)
+     axis.title = element_text(size = 14, face="bold"),
+     axis.text = element_text(size=12),
+     axis.text.x = element_text(angle=45, vjust=0.5),
+     strip.text = element_text(size=12),
+     plot.margin = unit(c(1,1,1,1), "lines")
      )
 
 Figure2A_themed
@@ -105,9 +107,11 @@ Figure2B_themed <- Figure2B +
      theme_classic() + 
      theme(
      legend.position = "none",
-     axis.title = element_text(size = 12, face="bold"),
-     axis.text = element_text(size=10),
-     axis.text.x = element_text(angle=45, vjust=0.5)
+     axis.title = element_text(size = 14, face="bold"),
+     axis.text = element_text(size=12),
+     axis.text.x = element_text(angle=45, vjust=0.5),
+     strip.text = element_text(size=12),
+     plot.margin = unit(c(1,1,1,1), "lines")
      )
 
 Figure2B_themed
@@ -116,28 +120,8 @@ Figure2B_themed
 ```
 
 # C: Race
-```{r, message=FALSE}
-CRCSites <- readr::read_delim("K:/SEER_DataTables/SEER_2000-2014_CRC_StageDistribution_Race.txt", "\t", escape_double = FALSE, trim_ws = TRUE)
-colnames(CRCSites) <- c("Year","Race", "Stage","Rate", "Count", "Population")
 
-CRCSites2 <- CRCSites %>% filter(!grepl("-", Year)) %>% filter(Stage %in% c("Distant","Localized","Regional","Unknown/unstaged")) %>% filter(Year >= 1998) %>% filter(! Race %in% c("Unknown"))
-CRCSites2$Year <- as.integer(CRCSites2$Year)
-```
-
-
-
-Group by Year, Race, Stage and Age, then summarize by each combination.  Get total cases for each year/race/age group.
-```{r}
-CRCSites2$Stage <- factor(CRCSites2$Stage, levels=c("Unknown/unstaged","Localized","Regional","Distant"))
-CRCSites2$Race <- factor(CRCSites2$Race, levels=c("Black", "American Indian/Alaska Native","Asian or Pacific Islander","White"), labels = c("Black or African American", "American Indian/Alaska Native","Asian or Pacific Islander","White"))
-```
-
-# The Data we're working with
-```{r}
-CRCSites2
-```
-
-# Read in joinpoint models
+## Read in joinpoint models
 ```{r}
 library(readxl)
 ```
@@ -145,19 +129,20 @@ library(readxl)
 ```{r}
 AI_JPs <- read_excel("../Data/JoinPoint/Rate_StageAmericanIndian.xlsx", sheet=3) %>% 
      mutate(Race = "American Indian/Alaska Native") %>% 
-     rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
-     mutate(Year = as.integer(Year), Model = as.numeric(Model), APC=NULL)
+     rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), APC=NULL)
 A_JPs <- read_excel("../Data/JoinPoint/Rate_StageAsian.xlsx", sheet=3) %>% 
      mutate(Race = "Asian or Pacific Islander") %>% 
-     rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
-     mutate(Year = as.integer(Year), Model = as.numeric(Model))
+     rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model))
 B_JPs <- read_excel("../Data/JoinPoint/Rate_StageBlack.xlsx", sheet=1) %>% 
      mutate(Race = "Black or African American") %>% 
-     rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
-     mutate(Year = as.integer(Year), Model = as.numeric(Model))
+     rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model))
 W_JPs <- read_excel("../Data/JoinPoint/Rate_StageWhite.xlsx", sheet=1) %>% 
-     mutate(Race = "White") %>% rename("Year" = "X Value", "Model" = "Modeleded Y Value") %>% 
-     mutate(Year = as.integer(Year), Model = as.numeric(Model), X__1=NULL, X__2=NULL)
+     mutate(Race = "White") %>% 
+     rename("Year" = "X Value", "Rate" = "Observed Y Value", "Model" = "Modeleded Y Value") %>% 
+     mutate(Year = as.integer(Year), Rate = as.numeric(Rate), Model = as.numeric(Model), X__1=NULL, X__2=NULL)
 
 AllRace_JPs <- rbind(AI_JPs, A_JPs, B_JPs, W_JPs)
 ```
@@ -169,7 +154,7 @@ AllRace_JPs <- rbind(AI_JPs, A_JPs, B_JPs, W_JPs)
 ```{r}
 colorclasses <- c("Localized" = "#016b0b","Distant" = "#be0306","Regional" = "#ffb401")
 
-shapes <- c(15,  17, 8)
+shapes <- c(8, 15, 17)
 lwds <- c(3, 2, 1)
 
 ```
@@ -189,7 +174,7 @@ Races_labeller <- function(variable,value){
 
 ```{r}
 Figure2C <- ggplot() + 
-     geom_point(data=CRCSites2 %>% filter(Stage != "Unknown/unstaged"), aes(x=Year, y=Rate, col=Stage, group=Stage, shape=Stage), size=2) + 
+     geom_point(data=AllRace_JPs %>% filter(Stage != "Unknown/unstaged"), aes(x=Year, y=Rate, col=Stage, group=Stage, shape=Stage), size=2) + 
      geom_line(data=AllRace_JPs, aes(x=Year, y=Model, group=Stage, col=Stage)) +
     facet_grid(. ~ Race, labeller = Races_labeller) +
      scale_x_continuous(breaks=c(1998, 2000, 2005, 2010, 2014), labels = c("1998", "2000", "2005", "2010", "2014"), minor_breaks = seq(1998,2014,1)) + 
@@ -203,9 +188,11 @@ Figure2C_themed <- Figure2C +
      theme_classic() + 
      theme(
      legend.position = "none",
-     axis.title = element_text(size = 12, face="bold"),
-     axis.text = element_text(size=10),
-     axis.text.x = element_text(angle=45, vjust=0.5)
+     axis.title = element_text(size = 14, face="bold"),
+     axis.text = element_text(size=12),
+     axis.text.x = element_text(angle=45, vjust=0.5),
+     strip.text = element_text(size=12),
+     plot.margin = unit(c(1,1,1,1), "lines")
      )
 
 Figure2C_themed
@@ -253,9 +240,11 @@ Figure2D_themed <- Figure2D +
      theme_classic() + 
      theme(
      legend.position = "none",
-     axis.title = element_text(size = 12, face="bold"),
-     axis.text = element_text(size=10),
-     axis.text.x = element_text(angle=45, vjust=0.5)
+     axis.title = element_text(size = 14, face="bold"),
+     axis.text = element_text(size=12),
+     axis.text.x = element_text(angle=45, vjust=0.5),
+     strip.text = element_text(size=12),
+     plot.margin = unit(c(1,1,1,1), "lines")
      )
 
 Figure2D_themed
@@ -264,23 +253,20 @@ Figure2D_themed
 # Cowplot, put it all together
 ```{r}
 Legend <- get_legend(Figure2B_themed + theme(legend.position = "bottom", 
-                                          legend.title = element_text(size=12, face="bold"),
-                                          legend.text = element_text(size=10))) 
+                                          legend.title = element_text(size=14, face="bold"),
+                                          legend.text = element_text(size=13))) 
 ```
 
 
 
 ```{r}
-prow <- plot_grid(Figure2A_themed, Figure2B_themed, Figure2C_themed, Figure2D_themed, labels = c("A", "B", "C", "D"), hjust = -1, nrow = 2, align = "vh", label_size = 26)
+prow <- plot_grid(Figure2A_themed, Figure2B_themed, Figure2C_themed, Figure2D_themed, labels = c("A", "B", "C", "D"), hjust = -1.25, nrow = 2, align = "vh", label_size = 26)
 p <- plot_grid(prow, Legend, ncol=1, rel_heights = c(1, .1))
 p
-#ggsave(plot=p, filename="Figure2.tiff", path="C:/Users/gaugustus/Documents/Success_Docs/Pubs/DistantCRC_BriefComm", device = "tiff", width=33, height=20, units="cm", dpi = 300)
 
-#ggsave(plot=p, filename="Figure2_Proof.tiff", path="C:/Users/gaugustus/Documents/Success_Docs/Pubs/DistantCRC_BriefComm", device = "tiff", width=33, height=20, units="cm", dpi = 72)
+setwd("U:/Box Sync/Distant CRC - JNCI Brief Comm/DistantCRCRates/")
+ggsave(plot=p, filename="Figure3_1200px.tif", path="../", device = "tiff", width=13, height=9, units = "in", dpi=100)
 
-ggsave(plot=p, filename="Figure3_1200px.tiff", path="U:/Box Sync/Distant CRC - JNCI Brief Comm", device = "tiff", width=12, height=7.5, units = "in", dpi=100)
-
-ggsave(plot=p, filename="Figure3.tiff", path="U:/Box Sync/Distant CRC - JNCI Brief Comm", device = "tiff", width=12, height=7.5, units = "in", dpi=300)
 ```
 
 
